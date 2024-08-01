@@ -1,7 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import * as THREE from "three";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import NavBar from "./components/ui/NavBar";
+import Navbar from "./components/ui/NavBar";
 
 const ThreeScene: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -354,9 +353,9 @@ const ThreeScene: React.FC = () => {
 
   return (
     <div className="relative">
-      <div ref={mountRef} className="fixed top-0 left-0 h-screen w-full" />
-      <div className="absolute top-0 left-0 h-[500vh] w-full bg-transparent">
-        <NavBar />
+      <div ref={mountRef} className="fixed top-0 left-0 h-screen w-full z-10" />
+      <div className="absolute top-0 left-0 h-[500vh] w-full bg-transparent z-20">
+        <Navbar />
         <div className="h-screen flex items-center justify-center text-white text-2xl">
           <p>Segment 1: Camera moving from z=5 to z=20</p>
         </div>
@@ -369,7 +368,7 @@ const ThreeScene: React.FC = () => {
         <div className="h-screen flex items-center justify-center text-white text-2xl">
           <p>Segment 4: Camera moving down from y=-15 to y=-30</p>
         </div>
-        <div className="h-screen flex justify-center text-white text-2xl bg-slate-600 bg-opacity-50 mr-7 ml-7 pt-10 p-3">
+        <div className="h-screen flex justify-center text-white text-2xl">
           <p>
             Segment 5: Camera moving from z=-10 to z=-40 Lorem ipsum dolor sit
             amet consectetur adipisicing elit. Voluptas, nihil. Similique

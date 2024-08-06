@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { FiMail, FiLock } from "react-icons/fi";
 import { useNavigate } from "react-router-dom"; // Import useNavigate hook
-import { authent } from "./FirebaseCred";
+import { authent } from "../FirebaseCred";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 const Login: React.FC = () => {

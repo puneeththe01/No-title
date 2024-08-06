@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import * as THREE from "three";
-import Navbar from "./components/ui/NavBar";
+import Navbar from "@/components/ui/NavBar";
 
 const ThreeScene: React.FC = () => {
   const mountRef = useRef<HTMLDivElement>(null);

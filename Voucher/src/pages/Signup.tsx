@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { FiMail, FiLock, FiUser } from "react-icons/fi";
-import { useNavigate } from "react-router-dom"; // Import useNavigate hook
-import { authent } from "./FirebaseCred";
+import { useNavigate } from "react-router-dom";
+import { authent } from "@/FirebaseCred";
 import { createUserWithEmailAndPassword } from "firebase/auth";
-import { saveUserData } from "./SaveUserData";
+import { saveUserData } from "@/SaveUserData";
 import { FaChild } from "react-icons/fa";
 
 const Signup: React.FC = () => {

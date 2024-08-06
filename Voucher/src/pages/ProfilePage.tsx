@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import Avatar from "./components/ui/Avatar";
-import { authent, db } from "./FirebaseCred";
+import Avatar from "@/components/ui/Avatar";
+import { authent, db } from "@/FirebaseCred";
 import { signOut } from "firebase/auth";
-import { initializeApp } from "firebase/app";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { onAuthStateChanged } from "firebase/auth";
 
 const ProfilePage: React.FC = () => {
   const [assets, setAssets] = useState<number>(0);

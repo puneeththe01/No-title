@@ -75,7 +75,7 @@ const Avatar: React.FC = () => {
   return (
     <div
       className="avatar-container z-0"
-      style={{ width: "150px", height: "150px" }}
+      style={{ width: "200px", height: "275px" }}
     >
       <Canvas
         style={{ background: "transparent" }}

@@ -32,6 +32,7 @@ const Signup: React.FC = () => {
           age: age,
           coins: 0,
           assets: 0,
+          ownedSquares: [],
         });
 
         navigate("/login"); // Redirect

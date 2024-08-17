@@ -7,6 +7,7 @@ interface UserData {
   age: number;
   coins: number;
   assets: number;
+  ownedSquares: string[];
 }
 
 const saveUserData = async (userId: string, userData: UserData) => {

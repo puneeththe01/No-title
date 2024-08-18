@@ -37,9 +37,13 @@ const Navbar: React.FC<NavbarProps> = ({ onModeChange, onConfirm }) => {
   };
 
   const handleConfirmClick = () => {
-    if (onConfirm && activeButton === "buy") {
+    if (onConfirm && (activeButton === "buy" || activeButton === "sell")) {
       onConfirm();
     }
+    handleButtonClick("none");
+  };
+
+  const handleCancelClick = () => {
     handleButtonClick("none");
   };
 
@@ -115,7 +119,7 @@ const Navbar: React.FC<NavbarProps> = ({ onModeChange, onConfirm }) => {
             </button>
             <button
               className="text-white text-2xl flex flex-col items-center focus:outline-none"
-              onClick={() => handleButtonClick("none")}
+              onClick={handleCancelClick}
             >
               <FaTimes />
               <span className="text-xs">Cancel</span>

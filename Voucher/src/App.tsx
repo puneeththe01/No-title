@@ -9,7 +9,8 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ChatPage from "./pages/ChatPage";
 import ChatPartnersPage from "./pages/ChatPartnersPage";
-import { buySquare } from "./buySquare"; // Adjust the path to where buySquare is defined
+import { buySquare } from "./buySquare";
+import { sellSquare } from "./sellSquare"; // Import sellSquare function
 import { onAuthStateChanged } from "firebase/auth";
 import { authent } from "./FirebaseCred";
 
@@ -37,11 +38,30 @@ const App: React.FC = () => {
   const handleBuySquare = async () => {
     if (selectedSquares.length && userId) {
       await buySquare(selectedSquares, userId);
-      setSelectedSquares([]);
+      setSelectedSquares([]); // Clear selected squares after the purchase
     } else {
       console.error("No squares selected or user not logged in.");
       setSelectedSquares([]);
     }
+  };
+
+  const handleSellSquare = async () => {
+    if (selectedSquares.length && userId) {
+      await sellSquare({ selectedSquares, userId }); // Handle the selling of squares
+      setSelectedSquares([]); // Clear selected squares after the sale
+    } else {
+      console.error("No squares selected or user not logged in.");
+      setSelectedSquares([]);
+    }
+  };
+
+  const handleConfirmAction = async () => {
+    if (mode === "buy") {
+      await handleBuySquare();
+    } else if (mode === "sell") {
+      await handleSellSquare();
+    }
+    setMode("none"); // Reset mode after the action is confirmed
   };
 
   return (
@@ -49,7 +69,7 @@ const App: React.FC = () => {
       <Router>
         <Navbar
           onModeChange={handleModeChange}
-          onConfirm={handleBuySquare} // Pass handleBuySquare to Navbar
+          onConfirm={handleConfirmAction} // Pass the handleConfirmAction to Navbar
         />
         <Routes>
           <Route path="/" element={<ThreeScene />} />

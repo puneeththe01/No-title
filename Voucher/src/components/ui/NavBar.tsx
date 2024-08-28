@@ -10,18 +10,35 @@ import {
   FaDollarSign,
   FaShoppingCart,
   FaTools,
+  FaBuilding,
+  FaCheck,
 } from "react-icons/fa";
 
 interface NavbarProps {
-  onModeChange: (mode: "buy" | "sell" | "none") => void;
+  onModeChange: (mode: "buy" | "sell" | "build" | "none") => void;
   onConfirm?: () => void;
+  onBuildTypeChange?: (type: "small" | "medium" | "large" | null) => void;
+  onConfirmBuild?: () => void;
+  onCancelBuild?: () => void;
+  setSelectedHouseType: React.Dispatch<
+    React.SetStateAction<"small" | "medium" | "large" | null>
+  >;
 }
 
-const Navbar: React.FC<NavbarProps> = ({ onModeChange, onConfirm }) => {
+const Navbar: React.FC<NavbarProps> = ({
+  onModeChange,
+  onConfirm,
+  onBuildTypeChange,
+  onConfirmBuild,
+  onCancelBuild,
+}) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [activeButton, setActiveButton] = useState<"buy" | "sell" | "none">(
-    "none"
-  );
+  const [activeButton, setActiveButton] = useState<
+    "buy" | "sell" | "build" | "none"
+  >("none");
+  const [selectedBuildType, setSelectedBuildType] = useState<
+    "small" | "medium" | "large" | null
+  >(null);
 
   const location = useLocation();
 
@@ -29,21 +46,34 @@ const Navbar: React.FC<NavbarProps> = ({ onModeChange, onConfirm }) => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const handleButtonClick = (mode: "buy" | "sell" | "none") => {
+  const handleButtonClick = (mode: "buy" | "sell" | "build" | "none") => {
     const newMode = activeButton === mode ? "none" : mode;
     setActiveButton(newMode);
     onModeChange(newMode);
     setIsSidebarOpen(false); // Close sidebar when a button is clicked
   };
 
+  const handleBuildTypeClick = (type: "small" | "medium" | "large") => {
+    setSelectedBuildType(type);
+    if (onBuildTypeChange) onBuildTypeChange(type);
+  };
+
   const handleConfirmClick = () => {
-    if (onConfirm && (activeButton === "buy" || activeButton === "sell")) {
+    if (activeButton === "build" && onConfirmBuild) {
+      onConfirmBuild();
+    } else if (
+      onConfirm &&
+      (activeButton === "buy" || activeButton === "sell")
+    ) {
       onConfirm();
     }
     handleButtonClick("none");
   };
 
   const handleCancelClick = () => {
+    if (onCancelBuild && activeButton === "build") {
+      onCancelBuild();
+    }
     handleButtonClick("none");
   };
 
@@ -102,10 +132,54 @@ const Navbar: React.FC<NavbarProps> = ({ onModeChange, onConfirm }) => {
             </button>
             <button
               className="text-white text-2xl flex flex-col items-center focus:outline-none"
-              onClick={() => handleButtonClick("none")}
+              onClick={() => handleButtonClick("build")}
             >
               <FaTools />
               <span className="text-xs">Build</span>
+            </button>
+          </>
+        ) : activeButton === "build" ? (
+          <>
+            <button
+              className={`text-white text-2xl flex flex-col items-center focus:outline-none ${
+                selectedBuildType === "small" ? "text-green-500" : ""
+              }`}
+              onClick={() => handleBuildTypeClick("small")}
+            >
+              <FaBuilding />
+              <span className="text-xs">Small</span>
+            </button>
+            <button
+              className={`text-white text-2xl flex flex-col items-center focus:outline-none ${
+                selectedBuildType === "medium" ? "text-green-500" : ""
+              }`}
+              onClick={() => handleBuildTypeClick("medium")}
+            >
+              <FaBuilding />
+              <span className="text-xs">Medium</span>
+            </button>
+            <button
+              className={`text-white text-2xl flex flex-col items-center focus:outline-none ${
+                selectedBuildType === "large" ? "text-green-500" : ""
+              }`}
+              onClick={() => handleBuildTypeClick("large")}
+            >
+              <FaBuilding />
+              <span className="text-xs">Large</span>
+            </button>
+            <button
+              className="text-white text-2xl flex flex-col items-center focus:outline-none"
+              onClick={handleConfirmClick}
+            >
+              <FaCheck />
+              <span className="text-xs">Confirm</span>
+            </button>
+            <button
+              className="text-white text-2xl flex flex-col items-center focus:outline-none"
+              onClick={handleCancelClick}
+            >
+              <FaTimes />
+              <span className="text-xs">Cancel</span>
             </button>
           </>
         ) : (
@@ -126,30 +200,34 @@ const Navbar: React.FC<NavbarProps> = ({ onModeChange, onConfirm }) => {
             </button>
           </>
         )}
-        <Link
-          to="/contact"
-          className="text-white text-2xl flex flex-col items-center"
-          onClick={() => setIsSidebarOpen(false)} // Close sidebar when link is clicked
-        >
-          <FaEnvelope />
-          <span className="text-xs">Contact</span>
-        </Link>
-        <button
-          className="text-white text-2xl flex flex-col items-center focus:outline-none z-50"
-          onClick={toggleSidebar}
-        >
-          {isSidebarOpen ? <FaTimes /> : <FaBars />}
-          <span className="text-xs">Menu</span>
-        </button>
+
+        {/* Conditionally render Contact and Menu buttons only if not in "build" mode */}
+        {activeButton !== "build" && (
+          <>
+            <Link
+              to="/contact"
+              className="text-white text-2xl flex flex-col items-center"
+              onClick={() => setIsSidebarOpen(false)} // Close sidebar when link is clicked
+            >
+              <FaEnvelope />
+              <span className="text-xs">Contact</span>
+            </Link>
+            <button
+              className="text-white text-2xl flex flex-col items-center focus:outline-none z-50"
+              onClick={toggleSidebar}
+            >
+              {isSidebarOpen ? <FaTimes /> : <FaBars />}
+              <span className="text-xs">Menu</span>
+            </button>
+          </>
+        )}
       </nav>
       <div
         className={`fixed bottom-0 left-0 w-full transition-transform duration-300 ${
           isSidebarOpen
             ? "transform translate-y-0"
             : "transform translate-y-full"
-        } z-40 ${isHomePage ? "bg-black" : "bg-darkcolor"} ${
-          isVirtualWorldPage ? "h-64" : "h-40"
-        }`}
+        } z-40 bg-black ${isVirtualWorldPage ? "h-64" : "h-40"}`}
       >
         <ul className="text-white p-4">
           {isVirtualWorldPage ? (
@@ -177,6 +255,16 @@ const Navbar: React.FC<NavbarProps> = ({ onModeChange, onConfirm }) => {
             </>
           ) : (
             <>
+              <li className="p-2 border-b border-gray-700">
+                <Link to="/" onClick={toggleSidebar}>
+                  Home
+                </Link>
+              </li>
+              <li className="p-2 border-b border-gray-700">
+                <Link to="/about" onClick={toggleSidebar}>
+                  About
+                </Link>
+              </li>
               <li className="p-2 border-b border-gray-700">
                 <Link to="/login" onClick={toggleSidebar}>
                   Login/Signup

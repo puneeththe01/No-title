@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { getFirestore, doc, getDoc } from "firebase/firestore";
-import { buySquare } from "@/buySquare";
+import { checkBuildCompatibility } from "@/checkBuildCompatibility"; // Import the compatibility function
 
 interface GridProps {
-  mode: "buy" | "sell" | "none";
+  mode: "buy" | "sell" | "build" | "none";
   userId: string | null;
   selectedSquareStrings: string[];
   setSelectedSquareStrings: React.Dispatch<React.SetStateAction<string[]>>;
+  selectedHouseType: "small" | "medium" | "large"; // Add this prop for house type
 }
 
 const Grid: React.FC<GridProps> = ({
@@ -14,6 +15,7 @@ const Grid: React.FC<GridProps> = ({
   userId,
   selectedSquareStrings,
   setSelectedSquareStrings,
+  selectedHouseType, // Use the selected house type
 }) => {
   const gridSize = 48; // Total size of the grid
   const smallSquareSize = 1; // Size of each small square
@@ -25,7 +27,6 @@ const Grid: React.FC<GridProps> = ({
   const [ownedSquares, setOwnedSquares] = useState<string[]>([]);
   const db = getFirestore();
 
-  // Calculate coordinates for a square based on its index
   const calculateCoordinates = (index: number): { x: number; z: number } => {
     const x = Math.floor(index / gridSize);
     const z = index % gridSize;
@@ -33,9 +34,8 @@ const Grid: React.FC<GridProps> = ({
   };
 
   useEffect(() => {
-    // Fetch owned squares from Firebase when in sell mode
     const fetchOwnedSquares = async () => {
-      if (mode === "sell" && userId) {
+      if ((mode === "sell" || mode === "build") && userId) {
         const userDocRef = doc(db, "userData", userId);
         const userDocSnap = await getDoc(userDocRef);
         if (userDocSnap.exists()) {
@@ -48,7 +48,6 @@ const Grid: React.FC<GridProps> = ({
   }, [mode, userId, db]);
 
   useEffect(() => {
-    // Update selectedSquareStrings based on selectedSquares
     const updatedSquareStrings = Array.from(selectedSquares).map((index) => {
       const coordinates = calculateCoordinates(index);
       return `square${coordinates.x}_${coordinates.z}`;
@@ -56,27 +55,60 @@ const Grid: React.FC<GridProps> = ({
     setSelectedSquareStrings(updatedSquareStrings);
   }, [selectedSquares, setSelectedSquareStrings]);
 
+  useEffect(() => {
+    if (mode === "none") {
+      const greyOutSquares = () => {
+        setSelectedSquares((prevSelected) => {
+          const newSet = new Set(prevSelected);
+          return newSet;
+        });
+        setOwnedSquares((prevOwned) => [...prevOwned]);
+      };
+
+      greyOutSquares();
+
+      setTimeout(() => {
+        setSelectedSquares(new Set());
+        setOwnedSquares([]);
+      }, 500); // 500ms delay
+    }
+  }, [mode]);
+
   const handleSquareClick = (index: number) => {
-    if (mode === "none") return; // Only allow selection in buy or sell mode
-    if (reservedSquares.has(index)) return; // Cannot select reserved squares
+    if (mode === "none") return;
+    if (reservedSquares.has(index)) return;
 
     const coordinates = calculateCoordinates(index);
     const squareName = `square${coordinates.x}_${coordinates.z}`;
 
-    // In sell mode, only allow selecting owned squares
-    if (mode === "sell" && !ownedSquares.includes(squareName)) return;
+    const isBorderX =
+      coordinates.x % bigSquareSize === 0 ||
+      coordinates.x % bigSquareSize === bigSquareSize - 1;
+    const isBorderZ =
+      coordinates.z % bigSquareSize === 0 ||
+      coordinates.z % bigSquareSize === bigSquareSize - 1;
+    const isRoad = isBorderX || isBorderZ;
+
+    if (isRoad) return; // Do not allow selecting roads
+
+    if (
+      (mode === "sell" || mode === "build") &&
+      !ownedSquares.includes(squareName)
+    )
+      return;
 
     setSelectedSquares((prev) => {
       const newSet = new Set(prev);
+
+      // Add or remove square from the selection
       if (newSet.has(index)) {
         newSet.delete(index);
       } else {
         newSet.add(index);
       }
+
       return newSet;
     });
-
-    console.log(`Square selected: ${squareName}`);
   };
 
   const createSquare = (
@@ -93,7 +125,7 @@ const Grid: React.FC<GridProps> = ({
     return (
       <mesh
         key={index}
-        position={[x, 0, z]} // Position square
+        position={[x, 0, z]} // Ensures an array of exactly three numbers
         onClick={() => handleSquareClick(index)}
         castShadow
         receiveShadow

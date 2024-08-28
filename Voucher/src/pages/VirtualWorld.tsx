@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Canvas } from "@react-three/fiber";
 import Grid from "@/components/ui/Grid";
 import CameraControl from "@/components/ui/CameraControl";
-import { onAuthStateChanged } from "firebase/auth";
-import { authent } from "@/FirebaseCred";
 
 interface VirtualWorldPageProps {
-  mode: "buy" | "sell" | "none";
+  mode: "buy" | "sell" | "build" | "none";
   selectedSquares: string[];
   setSelectedSquares: React.Dispatch<React.SetStateAction<string[]>>;
   userId: string | null;
+  selectedHouseType: "small" | "medium" | "large" | null; // New prop for selected house type
 }
 
 const VirtualWorldPage: React.FC<VirtualWorldPageProps> = ({
@@ -17,7 +16,10 @@ const VirtualWorldPage: React.FC<VirtualWorldPageProps> = ({
   selectedSquares,
   setSelectedSquares,
   userId,
+  selectedHouseType, // Accept the selected house type
 }) => {
+  const effectiveHouseType = selectedHouseType || "small"; // Provide a default value
+
   return (
     <div style={{ height: "100vh", width: "100vw", position: "relative" }}>
       <Canvas shadows camera={{ position: [0, 20, 20], fov: 50 }}>
@@ -28,6 +30,7 @@ const VirtualWorldPage: React.FC<VirtualWorldPageProps> = ({
           userId={userId}
           selectedSquareStrings={selectedSquares}
           setSelectedSquareStrings={setSelectedSquares}
+          selectedHouseType={effectiveHouseType} // Pass the effective house type
         />
         <CameraControl />
       </Canvas>

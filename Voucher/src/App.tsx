@@ -10,29 +10,35 @@ import Signup from "./pages/Signup";
 import ChatPage from "./pages/ChatPage";
 import ChatPartnersPage from "./pages/ChatPartnersPage";
 import { buySquare } from "./buySquare";
-import { sellSquare } from "./sellSquare"; // Import sellSquare function
+import { sellSquare } from "./sellSquare";
 import { onAuthStateChanged } from "firebase/auth";
 import { authent } from "./FirebaseCred";
+import { checkBuildCompatibility } from "./checkBuildCompatibility"; // Ensure this import is correct
 
 const App: React.FC = () => {
-  const [mode, setMode] = useState<"buy" | "sell" | "none">("none");
+  const [mode, setMode] = useState<"buy" | "sell" | "build" | "none">("none");
   const [selectedSquares, setSelectedSquares] = useState<string[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [selectedHouseType, setSelectedHouseType] = useState<
+    "small" | "medium" | "large" | null
+  >(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(authent, (user) => {
       if (user) {
         setUserId(user.uid);
       } else {
-        setUserId("");
+        setUserId(null);
       }
     });
-
     return () => unsubscribe();
   }, []);
 
-  const handleModeChange = (newMode: "buy" | "sell" | "none") => {
+  const handleModeChange = (newMode: "buy" | "sell" | "build" | "none") => {
     setMode(newMode);
+    if (newMode === "none") {
+      setSelectedHouseType(null);
+    }
   };
 
   const handleBuySquare = async () => {
@@ -64,34 +70,70 @@ const App: React.FC = () => {
     setMode("none"); // Reset mode after the action is confirmed
   };
 
+  const handleBuildTypeChange = (type: "small" | "medium" | "large" | null) => {
+    setSelectedHouseType(type);
+  };
+
+  const handleConfirmBuild = () => {
+    const isCompatible = checkBuildCompatibility(
+      selectedSquares,
+      selectedHouseType
+    );
+
+    if (isCompatible) {
+      // Proceed with the build process
+      alert("building is succesfully built");
+    } else {
+      alert(
+        `Invalid selection for ${selectedHouseType} house. Please select ${
+          selectedHouseType === "small"
+            ? "one"
+            : selectedHouseType === "medium"
+            ? "two adjacent"
+            : "four adjacent"
+        } squares.`
+      );
+    }
+    setMode("none"); // Exit build mode after confirming
+  };
+
+  const handleCancelBuild = () => {
+    setMode("none");
+    setSelectedHouseType(null);
+    setSelectedSquares([]);
+  };
+
   return (
-    <div style={{ height: "100vh", width: "100vw" }}>
-      <Router>
-        <Navbar
-          onModeChange={handleModeChange}
-          onConfirm={handleConfirmAction} // Pass the handleConfirmAction to Navbar
+    <Router>
+      <Navbar
+        onModeChange={handleModeChange}
+        onBuildTypeChange={handleBuildTypeChange}
+        onConfirmBuild={handleConfirmBuild}
+        onCancelBuild={handleCancelBuild}
+        setSelectedHouseType={setSelectedHouseType}
+        onConfirm={handleConfirmAction}
+      />
+      <Routes>
+        <Route path="/" element={<ThreeScene />} />
+        <Route path="/about" element={<ProfilePage />} />
+        <Route
+          path="/virtual-world"
+          element={
+            <VirtualWorldPage
+              mode={mode}
+              selectedSquares={selectedSquares}
+              setSelectedSquares={setSelectedSquares}
+              userId={userId}
+              selectedHouseType={selectedHouseType} // Pass the selected house type
+            />
+          }
         />
-        <Routes>
-          <Route path="/" element={<ThreeScene />} />
-          <Route path="/about" element={<ProfilePage />} />
-          <Route
-            path="/virtual-world"
-            element={
-              <VirtualWorldPage
-                mode={mode}
-                selectedSquares={selectedSquares}
-                setSelectedSquares={setSelectedSquares}
-                userId={userId}
-              />
-            }
-          />
-          <Route path="/contact" element={<ChatPartnersPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/chatpage" element={<ChatPage />} />
-        </Routes>
-      </Router>
-    </div>
+        <Route path="/contact" element={<ChatPartnersPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/chatpage" element={<ChatPage />} />
+      </Routes>
+    </Router>
   );
 };
 

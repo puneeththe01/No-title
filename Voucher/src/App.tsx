@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Navbar from "./components/ui/NavBar";
 import ProfilePage from "./pages/ProfilePage";
 import VirtualWorldPage from "./pages/VirtualWorld";
-import Contact from "./Contact";
 import ThreeScene from "./pages/HomePageThree";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -14,11 +13,15 @@ import { sellSquare } from "./sellSquare";
 import { onAuthStateChanged } from "firebase/auth";
 import { authent } from "./FirebaseCred";
 import { checkBuildCompatibility } from "./checkBuildCompatibility"; // Ensure this import is correct
+import housePlacement from "./components/ui/housePlacement";
+import { Vector3 } from "three";
 
 const App: React.FC = () => {
   const [mode, setMode] = useState<"buy" | "sell" | "build" | "none">("none");
   const [selectedSquares, setSelectedSquares] = useState<string[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [housePosition, setHousePosition] = useState<Vector3 | null>(null);
+  const [rotationValue, setRotationValue] = useState<number>(0);
   const [selectedHouseType, setSelectedHouseType] = useState<
     "small" | "medium" | "large" | null
   >(null);
@@ -38,6 +41,7 @@ const App: React.FC = () => {
     setMode(newMode);
     if (newMode === "none") {
       setSelectedHouseType(null);
+      setSelectedSquares([]);
     }
   };
 
@@ -74,15 +78,33 @@ const App: React.FC = () => {
     setSelectedHouseType(type);
   };
 
-  const handleConfirmBuild = () => {
+  const handleConfirmBuild = async () => {
+    if (!selectedHouseType) {
+      alert("Please select a house type.");
+      return;
+    }
+
     const isCompatible = checkBuildCompatibility(
       selectedSquares,
       selectedHouseType
     );
 
     if (isCompatible) {
-      // Proceed with the build process
-      alert("building is succesfully built");
+      const housePlacementData = {
+        squares: selectedSquares,
+        houseType: selectedHouseType,
+        rotationValue: setRotationValue,
+      };
+      const position = housePlacement(housePlacementData, 48);
+      setHousePosition(await position); // Set the position for rendering
+
+      // Delay resetting mode and selected house type
+      setTimeout(() => {
+        setMode("none"); // Exit build mode after confirming
+        setSelectedHouseType(null); // Reset house type only after rendering
+      }, 100000); // Give a slight delay to ensure rendering occurs
+
+      alert("Building successfully built.");
     } else {
       alert(
         `Invalid selection for ${selectedHouseType} house. Please select ${
@@ -94,13 +116,10 @@ const App: React.FC = () => {
         } squares.`
       );
     }
-    setMode("none"); // Exit build mode after confirming
   };
 
   const handleCancelBuild = () => {
-    setMode("none");
-    setSelectedHouseType(null);
-    setSelectedSquares([]);
+    handleModeChange("none"); // Reset mode and clear selections
   };
 
   return (
@@ -125,6 +144,8 @@ const App: React.FC = () => {
               setSelectedSquares={setSelectedSquares}
               userId={userId}
               selectedHouseType={selectedHouseType} // Pass the selected house type
+              housePosition={housePosition}
+              rotationValue={rotationValue}
             />
           }
         />

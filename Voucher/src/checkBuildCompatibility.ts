@@ -2,14 +2,15 @@ export type BuildType = "small" | "medium" | "large" | null;
 
 export function checkBuildCompatibility(
   selectedSquares: string[], // square names like "squareX_Z"
-  buildType: BuildType
+  buildType: BuildType,
 ): boolean {
   const extractCoordinates = (squareName: string) => {
     const [xStr, zStr] = squareName.replace("square", "").split("_");
     return { x: parseInt(xStr), z: parseInt(zStr) };
   };
 
-  const squares = selectedSquares.map(extractCoordinates);
+  const squares: { x: number; z: number }[] = selectedSquares.map(extractCoordinates);
+  console.log(squares)
 
   const tempX: number[] = [];
   const tempZ: number[] = [];
@@ -25,16 +26,23 @@ export function checkBuildCompatibility(
 
   const is2x2Grid = tempX.length === 2 && tempZ.length === 2;
 
+  let isCompatible = false;
+
   switch (buildType) {
     case "small":
-      return squares.length === 1;
+      isCompatible = squares.length === 1;
+      break;
     case "medium":
-      return squares.length === 2 && isAdjacent(squares[0], squares[1]);
+      isCompatible = squares.length === 2 && isAdjacent(squares[0], squares[1]);
+      break;
     case "large":
-      return squares.length === 4 && is2x2Grid;
+      isCompatible = squares.length === 4 && is2x2Grid;
+      break;
     default:
-      return false;
+      isCompatible = false;
   }
+
+  return isCompatible;
 }
 
 function isAdjacent(a: { x: number; z: number }, b: { x: number; z: number }): boolean {

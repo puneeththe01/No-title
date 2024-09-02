@@ -355,7 +355,18 @@ const ThreeScene: React.FC = () => {
     <div className="relative">
       <div ref={mountRef} className="fixed top-0 left-0 h-screen w-full z-10" />
       <div className="absolute top-0 left-0 h-[500vh] w-full bg-transparent z-20">
-        <Navbar />
+        <Navbar
+          onModeChange={function (
+            mode: "buy" | "sell" | "build" | "none"
+          ): void {
+            throw new Error("Function not implemented.");
+          }}
+          setSelectedHouseType={function (
+            value: React.SetStateAction<"small" | "medium" | "large" | null>
+          ): void {
+            throw new Error("Function not implemented.");
+          }}
+        />
         <div className="h-screen flex items-center justify-center text-white text-2xl">
           <p>Segment 1: Camera moving from z=5 to z=20</p>
         </div>

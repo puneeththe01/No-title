@@ -256,16 +256,6 @@ const Navbar: React.FC<NavbarProps> = ({
           ) : (
             <>
               <li className="p-2 border-b border-gray-700">
-                <Link to="/" onClick={toggleSidebar}>
-                  Home
-                </Link>
-              </li>
-              <li className="p-2 border-b border-gray-700">
-                <Link to="/about" onClick={toggleSidebar}>
-                  About
-                </Link>
-              </li>
-              <li className="p-2 border-b border-gray-700">
                 <Link to="/login" onClick={toggleSidebar}>
                   Login/Signup
                 </Link>

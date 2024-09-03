@@ -26,7 +26,7 @@ const Login: React.FC = () => {
   };
 
   const createAccount = () => {
-    navigate("/sigup");
+    navigate("/signup");
   };
 
   return (
@@ -70,7 +70,7 @@ const Login: React.FC = () => {
           </button>
         </div>
         <div>
-          <a href="#" onClick={createAccount} className="text-blue-600">
+          <a href="" onClick={createAccount} className="text-blue-600">
             I don't have account? Create an account
           </a>
         </div>

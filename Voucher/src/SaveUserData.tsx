@@ -8,6 +8,8 @@ interface UserData {
   coins: number;
   assets: number;
   ownedSquares: string[];
+  streak: number;
+  signInLog: string[];
 }
 
 const saveUserData = async (userId: string, userData: UserData) => {

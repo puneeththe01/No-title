@@ -33,6 +33,8 @@ const Signup: React.FC = () => {
           coins: 0,
           assets: 0,
           ownedSquares: [],
+          streak: 0,
+          signInLog: [],
         });
 
         navigate("/login"); // Redirect
